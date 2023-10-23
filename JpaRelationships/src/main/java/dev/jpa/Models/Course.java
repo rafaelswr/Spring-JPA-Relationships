@@ -1,8 +1,8 @@
 package dev.jpa.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,33 +10,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Builder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "course")
+@NoArgsConstructor
+@Data
 public class Course {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
+    @SequenceGenerator(
+            name = "course_sequence",
+            sequenceName = "course_sequence",
+            allocationSize = 1
     )
-    private Long courseID;
-    private String name;
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "course_sequence"
+    )
+    private Long courseId;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Student> students = new ArrayList<>();
+    private String name;
+    private int credit;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "courseMaterialID", referencedColumnName = "courseMaterialID")
+    @JoinColumn(name = "cmId", referencedColumnName = "cmId")
     private CourseMaterial courseMaterial;
 
-    @ManyToMany(mappedBy = "courses", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "course_teacher",
+            joinColumns = @JoinColumn(name = "courseId", referencedColumnName = "courseId"),
+            inverseJoinColumns = @JoinColumn(name = "teacherId", referencedColumnName = "teacherId")
+    )
     private List<Teacher> teachers = new ArrayList<>();
 
-    public Course(String name, CourseMaterial courseMaterial){
+    @JsonManagedReference
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Student> students = new ArrayList<>();
+    public Course(String name, int credit, CourseMaterial courseMaterial) {
         this.name = name;
+        this.credit = credit;
         this.courseMaterial = courseMaterial;
     }
-
 }

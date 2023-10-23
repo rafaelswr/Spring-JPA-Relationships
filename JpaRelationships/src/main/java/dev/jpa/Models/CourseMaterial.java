@@ -1,22 +1,26 @@
 package dev.jpa.Models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jdk.jfr.DataAmount;
+import lombok.*;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Table(name = "courseMaterial")
 public class CourseMaterial {
+
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
+    @SequenceGenerator(
+            name = "courseMaterial_sequence",
+            sequenceName = "courseMaterial_sequence",
+            allocationSize = 1
     )
-    private Long courseMaterialID;
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "courseMaterial_sequence"
+    )
+    private Long cmId;
 
     private String url;
 

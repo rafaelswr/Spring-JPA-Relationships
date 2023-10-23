@@ -1,50 +1,57 @@
 package dev.jpa.Models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.time.Period;
 
 @Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "student")
+@NoArgsConstructor
+@Data
 public class Student {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
+    @SequenceGenerator(
+            name = "student_sequence",
+            sequenceName = "student_sequence",
+            allocationSize = 1
     )
-    private Long studentID;
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "student_sequence"
+    )
+    private Long studentId;
     private String name;
     private String email;
-    private LocalDate birth;
-
+    private LocalDate dob;
     @Transient
     private int age;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseID",referencedColumnName = "courseID")
+
+    @JsonBackReference
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "courseId", referencedColumnName = "courseId")
     private Course course;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="guardianID", referencedColumnName = "guardianID")
-    private Guardian guardian;
+    @JoinColumn(name = "tutorId", referencedColumnName = "tutorId")
+    public Tutor tutor;
 
-    public int getAge(){
-        return Period.between(birth, LocalDate.now()).getYears();
+    public int getAge() {
+        return Period.between(dob, LocalDate.now()).getYears();
     }
 
-    public Student(String name, String email, LocalDate birth, Guardian guardian, Course course) {
+    public Student(String name, String email, LocalDate dob, Tutor tutor, Course course) {
         this.name = name;
         this.email = email;
-        this.birth = birth;
-        this.guardian = guardian;
+        this.dob = dob;
         this.course = course;
+        this.tutor = tutor;
     }
 }
